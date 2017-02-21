@@ -47,13 +47,13 @@ public class EventBus {
         Set<Object> listenersForEvent = registrations.get(eventClass);
                 
         if (!listenersForEvent.remove(listener)) {
-        	throw new EventBusSubscriptionNotFoundException();
+            throw new EventBusSubscriptionNotFoundException();
         }
         
         consumers.removeAll(listener);
         
         if (listenersForEvent.isEmpty()) {
-        	registrations.removeAll(eventClass);
+            registrations.removeAll(eventClass);
         }
     }
     
@@ -63,11 +63,11 @@ public class EventBus {
         Set<Consumer> consumersForEvent = freeConsumers.get(eventClass);
         
         if (!consumersForEvent.remove(freeConsumer)) {
-        	throw new EventBusSubscriptionNotFoundException();
+            throw new EventBusSubscriptionNotFoundException();
         }
         
         if (consumersForEvent.isEmpty()) {
-        	freeConsumers.removeAll(eventClass);
+            freeConsumers.removeAll(eventClass);
         }
     }
     

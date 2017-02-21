@@ -3,7 +3,6 @@ package com.akruglov.utils;
 import com.akruglov.utils.exceptions.EventBusSubscriptionNotFoundException;
 import com.google.common.collect.HashMultimap;
 
-import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.junit.Test;
@@ -26,31 +25,31 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 @PrepareForTest(EventBusTest.FakeListener.class)
 public class EventBusTest {
         
-	private EventBus bus;
+    private EventBus bus;
     private FakeListener fakeListener;
     
     @Mock
-	private FakeListener mockListener;
+    private FakeListener mockListener;
     
     public static class FakeListener {
-    	
-    	public void use(String s) {
-    		
-    	}
-    	
-    	public void put(String s) {
-    		
-    	}
-    	
-    	public static void save(String s) {
 
-    	}
+        public void use(String s) {
+
+        }
+
+        public void put(String s) {
+
+        }
+
+        public static void save(String s) {
+
+        }
     }
     
     @Before
     public void setup() {
-    	MockitoAnnotations.initMocks(this);
-    	bus = new EventBus();
+        MockitoAnnotations.initMocks(this);
+        bus = new EventBus();
         fakeListener = new FakeListener();
     }
     
@@ -72,11 +71,11 @@ public class EventBusTest {
     
     @Test
     public void subscribeShouldAddObjectAndConsumer() {
-    	Consumer<String> consumer = fakeListener::use;
-    	
-    	bus.subscribe(String.class, fakeListener, consumer);
-    	
-    	HashMultimap<Class, Object> registrations = Whitebox.getInternalState(bus, "registrations");
+        Consumer<String> consumer = fakeListener::use;
+
+        bus.subscribe(String.class, fakeListener, consumer);
+
+        HashMultimap<Class, Object> registrations = Whitebox.getInternalState(bus, "registrations");
         
         Set<Object> listenersForEvent = registrations.get(String.class);
         Object listener  = listenersForEvent.iterator().next();
@@ -96,7 +95,7 @@ public class EventBusTest {
     
     @Test
     public void unsubscribeShouldRemoveFreeConsumer() throws EventBusSubscriptionNotFoundException {
-    	Consumer<String> consumer = (s) -> System.out.println(s);
+        Consumer<String> consumer = (s) -> System.out.println(s);
         bus.subscribe(String.class, consumer);
         bus.unsubscribe(String.class, consumer);
         
@@ -108,15 +107,15 @@ public class EventBusTest {
     
     @Test(expected = EventBusSubscriptionNotFoundException.class)
     public void unsubscribeShouldThrowEventBusSubscriptionNotFoundExceptionForFreeConsumer() throws EventBusSubscriptionNotFoundException {
-    	Consumer<String> consumer = (s) -> System.out.println(s);
+        Consumer<String> consumer = (s) -> System.out.println(s);
         bus.subscribe(String.class, (s) -> System.out.println(s));
         bus.unsubscribe(String.class, consumer);
     }
     
     @Test
     public void unsubscribeShouldRemoveOnlyOneConsumer() throws EventBusSubscriptionNotFoundException {
-    	Consumer<String> consumer1 = (s) -> System.out.println(s);
-    	Consumer<String> consumer2 = (s) -> System.out.println(s + " " +  s);
+        Consumer<String> consumer1 = (s) -> System.out.println(s);
+        Consumer<String> consumer2 = (s) -> System.out.println(s + " " +  s);
         bus.subscribe(String.class, consumer1);
         bus.subscribe(String.class, consumer2);
         bus.unsubscribe(String.class, consumer1);
@@ -134,62 +133,62 @@ public class EventBusTest {
     
     @Test
     public void unsubscribeShouldRemoveListenerAndConsumers() throws EventBusSubscriptionNotFoundException {
-    	bus.subscribe(String.class, fakeListener, fakeListener::use);
-    	bus.subscribe(String.class, fakeListener, fakeListener::put);
-    	bus.unsubscribe(String.class, fakeListener);
-    	
-    	HashMultimap<Class, Object> registrations = Whitebox.getInternalState(bus, "registrations");
-    	HashMultimap<Object, Consumer> consumers = Whitebox.getInternalState(bus, "consumers");
-    	
-    	assertTrue(registrations.isEmpty());
-    	assertTrue(consumers.isEmpty());
+        bus.subscribe(String.class, fakeListener, fakeListener::use);
+        bus.subscribe(String.class, fakeListener, fakeListener::put);
+        bus.unsubscribe(String.class, fakeListener);
+
+        HashMultimap<Class, Object> registrations = Whitebox.getInternalState(bus, "registrations");
+        HashMultimap<Object, Consumer> consumers = Whitebox.getInternalState(bus, "consumers");
+
+        assertTrue(registrations.isEmpty());
+        assertTrue(consumers.isEmpty());
     }
     
     @Test(expected = EventBusSubscriptionNotFoundException.class)
     public void unsubscribeShouldThrowEventBusSubscriptionNotFoundExceptionForListener() throws EventBusSubscriptionNotFoundException {
-    	bus.subscribe(String.class, fakeListener, fakeListener::use);
-    	bus.unsubscribe(String.class, new FakeListener());
+        bus.subscribe(String.class, fakeListener, fakeListener::use);
+        bus.unsubscribe(String.class, new FakeListener());
     }
     
     @Test
     public void unsubscribeShouldRemoveOnlyOneListenerWithItsCunsumers() throws EventBusSubscriptionNotFoundException {
-    	FakeListener anotherListener = new FakeListener();
-    	Consumer<String> firstConsumer = anotherListener::use;
-    	Consumer<String> secondConsumer = anotherListener::put;
-    	bus.subscribe(String.class, fakeListener, fakeListener::use);
-    	bus.subscribe(String.class, fakeListener, fakeListener::put);
-    	bus.subscribe(String.class, anotherListener, firstConsumer);
-    	bus.subscribe(String.class, anotherListener, secondConsumer);
-    	bus.unsubscribe(String.class, fakeListener);
-    	
-    	HashMultimap<Class, Object> registrations = Whitebox.getInternalState(bus, "registrations");
-    	HashMultimap<Object, Consumer> consumers = Whitebox.getInternalState(bus, "consumers");
-    	
-    	Set<Object> listenersForEvent = registrations.get(String.class);
-    	Object subscribedListener = listenersForEvent.iterator().next();
-    	
-    	Set<Consumer> consumersForListener = consumers.get(subscribedListener);
-    	
-    	assertEquals(registrations.size(), 1);
-    	assertEquals(listenersForEvent.size(), 1);
-    	assertSame(subscribedListener, anotherListener);
-    	assertEquals(consumers.size(), 2);
-    	assertEquals(consumersForListener.size(), 2);
-    	assertTrue(consumersForListener.contains(firstConsumer));
-    	assertTrue(consumersForListener.contains(secondConsumer));
+        FakeListener anotherListener = new FakeListener();
+        Consumer<String> firstConsumer = anotherListener::use;
+        Consumer<String> secondConsumer = anotherListener::put;
+        bus.subscribe(String.class, fakeListener, fakeListener::use);
+        bus.subscribe(String.class, fakeListener, fakeListener::put);
+        bus.subscribe(String.class, anotherListener, firstConsumer);
+        bus.subscribe(String.class, anotherListener, secondConsumer);
+        bus.unsubscribe(String.class, fakeListener);
+
+        HashMultimap<Class, Object> registrations = Whitebox.getInternalState(bus, "registrations");
+        HashMultimap<Object, Consumer> consumers = Whitebox.getInternalState(bus, "consumers");
+
+        Set<Object> listenersForEvent = registrations.get(String.class);
+        Object subscribedListener = listenersForEvent.iterator().next();
+
+        Set<Consumer> consumersForListener = consumers.get(subscribedListener);
+
+        assertEquals(registrations.size(), 1);
+        assertEquals(listenersForEvent.size(), 1);
+        assertSame(subscribedListener, anotherListener);
+        assertEquals(consumers.size(), 2);
+        assertEquals(consumersForListener.size(), 2);
+        assertTrue(consumersForListener.contains(firstConsumer));
+        assertTrue(consumersForListener.contains(secondConsumer));
     }
     
     @Test
     public void fireShouldCallAllConsumers() throws Exception {
-    	mockStatic(FakeListener.class);
-    	PowerMockito.doNothing().when(FakeListener.class, "save", Mockito.anyString());
-    	bus.subscribe(String.class, mockListener, mockListener::use);
-    	bus.subscribe(String.class, FakeListener::save);
-    	bus.fire("Test");
+        mockStatic(FakeListener.class);
+        PowerMockito.doNothing().when(FakeListener.class, "save", Mockito.anyString());
+        bus.subscribe(String.class, mockListener, mockListener::use);
+        bus.subscribe(String.class, FakeListener::save);
+        bus.fire("Test");
 
-    	verify(mockListener, times(1)).use(anyString());
+        verify(mockListener, times(1)).use(anyString());
 
-    	PowerMockito.verifyStatic();
-    	FakeListener.save(Mockito.anyString());
+        PowerMockito.verifyStatic();
+        FakeListener.save(Mockito.anyString());
     }
 }
