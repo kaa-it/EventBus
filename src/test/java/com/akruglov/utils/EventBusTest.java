@@ -94,7 +94,7 @@ public class EventBusTest {
     }
     
     @Test
-    public void unsubscribeShouldRemoveFreeConsumer() throws EventBusSubscriptionNotFoundException {
+    public void unsubscribeShouldRemoveFreeConsumer() {
         Consumer<String> consumer = (s) -> System.out.println(s);
         bus.subscribe(String.class, consumer);
         bus.unsubscribe(String.class, consumer);
@@ -106,14 +106,14 @@ public class EventBusTest {
     }
     
     @Test(expected = EventBusSubscriptionNotFoundException.class)
-    public void unsubscribeShouldThrowEventBusSubscriptionNotFoundExceptionForFreeConsumer() throws EventBusSubscriptionNotFoundException {
+    public void unsubscribeShouldThrowEventBusSubscriptionNotFoundExceptionForFreeConsumer() {
         Consumer<String> consumer = (s) -> System.out.println(s);
         bus.subscribe(String.class, (s) -> System.out.println(s));
         bus.unsubscribe(String.class, consumer);
     }
     
     @Test
-    public void unsubscribeShouldRemoveOnlyOneConsumer() throws EventBusSubscriptionNotFoundException {
+    public void unsubscribeShouldRemoveOnlyOneConsumer() {
         Consumer<String> consumer1 = (s) -> System.out.println(s);
         Consumer<String> consumer2 = (s) -> System.out.println(s + " " +  s);
         bus.subscribe(String.class, consumer1);
@@ -132,7 +132,7 @@ public class EventBusTest {
     }
     
     @Test
-    public void unsubscribeShouldRemoveListenerAndConsumers() throws EventBusSubscriptionNotFoundException {
+    public void unsubscribeShouldRemoveListenerAndConsumers() {
         bus.subscribe(String.class, fakeListener, fakeListener::use);
         bus.subscribe(String.class, fakeListener, fakeListener::put);
         bus.unsubscribe(String.class, fakeListener);
@@ -145,13 +145,13 @@ public class EventBusTest {
     }
     
     @Test(expected = EventBusSubscriptionNotFoundException.class)
-    public void unsubscribeShouldThrowEventBusSubscriptionNotFoundExceptionForListener() throws EventBusSubscriptionNotFoundException {
+    public void unsubscribeShouldThrowEventBusSubscriptionNotFoundExceptionForListener() {
         bus.subscribe(String.class, fakeListener, fakeListener::use);
         bus.unsubscribe(String.class, new FakeListener());
     }
     
     @Test
-    public void unsubscribeShouldRemoveOnlyOneListenerWithItsCunsumers() throws EventBusSubscriptionNotFoundException {
+    public void unsubscribeShouldRemoveOnlyOneListenerWithItsCunsumers() {
         FakeListener anotherListener = new FakeListener();
         Consumer<String> firstConsumer = anotherListener::use;
         Consumer<String> secondConsumer = anotherListener::put;

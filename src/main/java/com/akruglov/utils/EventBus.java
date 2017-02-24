@@ -75,7 +75,7 @@ public class EventBus {
      * @throws EventBusSubscriptionNotFoundException if given object is not subscribed to events of given class
      */
     public <Event, Listener> void unsubscribe(Class<Event> eventClass,
-            Listener listener) throws EventBusSubscriptionNotFoundException {
+            Listener listener) {
         
         Set<Object> listenersForEvent = registrations.get(eventClass);
                 
@@ -99,7 +99,7 @@ public class EventBus {
      *     event of given class
      */
     public <Event> void unsubscribe(Class<Event> eventClass,
-            Consumer<Event> freeConsumer) throws EventBusSubscriptionNotFoundException {
+            Consumer<Event> freeConsumer) {
         
         Set<Consumer> consumersForEvent = freeConsumers.get(eventClass);
         
